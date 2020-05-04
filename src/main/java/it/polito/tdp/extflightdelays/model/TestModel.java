@@ -5,6 +5,10 @@ public class TestModel {
 	public static void main(String[] args) {
 		
 		Model model = new Model();
+	//	System.out.println(model.getIdMap());
+	//	System.out.println(model.nArchi());
+		System.out.println(model.nVertici());
+		
 
 	}
 

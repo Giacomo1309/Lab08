@@ -5,12 +5,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import it.polito.tdp.extflightdelays.model.Airline;
 import it.polito.tdp.extflightdelays.model.Airport;
 import it.polito.tdp.extflightdelays.model.Flight;
+import it.polito.tdp.extflightdelays.model.Supporto;
 
 public class ExtFlightDelaysDAO {
 
@@ -37,9 +40,8 @@ public class ExtFlightDelaysDAO {
 		}
 	}
 
-	public List<Airport> loadAllAirports() {
+	public void loadAllAirports(Map<Integer, Airport> idMap) {
 		String sql = "SELECT * FROM airports";
-		List<Airport> result = new ArrayList<Airport>();
 
 		try {
 			Connection conn = ConnectDB.getConnection();
@@ -47,14 +49,14 @@ public class ExtFlightDelaysDAO {
 			ResultSet rs = st.executeQuery();
 
 			while (rs.next()) {
+
 				Airport airport = new Airport(rs.getInt("ID"), rs.getString("IATA_CODE"), rs.getString("AIRPORT"),
 						rs.getString("CITY"), rs.getString("STATE"), rs.getString("COUNTRY"), rs.getDouble("LATITUDE"),
 						rs.getDouble("LONGITUDE"), rs.getDouble("TIMEZONE_OFFSET"));
-				result.add(airport);
+				idMap.put(airport.getId(), airport);
 			}
 
 			conn.close();
-			return result;
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -80,6 +82,41 @@ public class ExtFlightDelaysDAO {
 						rs.getDouble("ELAPSED_TIME"), rs.getInt("DISTANCE"),
 						rs.getTimestamp("ARRIVAL_DATE").toLocalDateTime(), rs.getDouble("ARRIVAL_DELAY"));
 				result.add(flight);
+			}
+
+			conn.close();
+			return result;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("Errore connessione al database");
+			throw new RuntimeException("Error Connection Database");
+		}
+	}
+
+	public Map<String, Supporto> getSupporto() {
+		String sql = "SELECT origin_airport_id , destination_airport_id , id, AVG(DISTANCE) AS MEDIA " + "FROM flights "
+				+ "GROUP BY  origin_airport_id, destination_airport_id ";
+		Map<String, Supporto> result = new HashMap<String, Supporto>();
+
+		try {
+			Connection conn = ConnectDB.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			ResultSet rs = st.executeQuery();
+
+			while (rs.next()) {
+				// if(result.containsKey(rs.getInt("id")))
+				int idPartenza = rs.getInt("origin_airport_id");
+				int idArrivo = rs.getInt("destination_airport_id");
+				double media = rs.getDouble("MEDIA");
+
+				if (result.containsKey("" + idArrivo + " " + idPartenza)) {
+					result.get("" + idArrivo + " " + idPartenza)
+							.setMedia(media + (result.get("" + idArrivo + " " + idPartenza).getMedia()) / 2);
+
+				} else 
+				result.put("" + idPartenza + " " + idArrivo, new Supporto(rs.getDouble("MEDIA"),
+						rs.getInt("origin_airport_id"), rs.getInt("destination_airport_id"), rs.getInt("id")));
 			}
 
 			conn.close();
