@@ -104,7 +104,8 @@ public class ExtFlightDelaysDAO {
 			PreparedStatement st = conn.prepareStatement(sql);
 			ResultSet rs = st.executeQuery();
 
-			while (rs.next()) {
+			while (rs.next()) { //ATTENZIONE PERCHE LA MEDIA E SBAGLIATA , AGGIUNGERE UN COUNT(*) NELLA QUERY E FARE LA MEDIA!!!!
+				// AGGIUNGERE QUINDI UN INT NELLA CLASSE SUPPORTO PER SALVARSI IL NUMERO DI OCCORRENZE
 				// if(result.containsKey(rs.getInt("id")))
 				int idPartenza = rs.getInt("origin_airport_id");
 				int idArrivo = rs.getInt("destination_airport_id");
