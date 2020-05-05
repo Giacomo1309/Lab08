@@ -16,7 +16,7 @@ public class TestDAO {
 		//dao.loadAllAirports(idMap);
 	//	System.out.println(dao.loadAllFlights().size());
 		System.out.println("sperimento" + "\n");
-		System.out.println( dao.getSupporto().values());
+//		System.out.println( dao.getSupporto().values());
 		
 		
 	}

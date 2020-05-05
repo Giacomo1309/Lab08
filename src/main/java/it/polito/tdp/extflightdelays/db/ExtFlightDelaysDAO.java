@@ -94,7 +94,7 @@ public class ExtFlightDelaysDAO {
 		}
 	}
 
-	public Map<String, Supporto> getSupporto() {
+	public Map<String, Supporto> getSupporto(int distanza) {
 		String sql = "SELECT origin_airport_id , destination_airport_id , id, AVG(DISTANCE) AS MEDIA " + "FROM flights "
 				+ "GROUP BY  origin_airport_id, destination_airport_id ";
 		Map<String, Supporto> result = new HashMap<String, Supporto>();
@@ -109,14 +109,15 @@ public class ExtFlightDelaysDAO {
 				int idPartenza = rs.getInt("origin_airport_id");
 				int idArrivo = rs.getInt("destination_airport_id");
 				double media = rs.getDouble("MEDIA");
+				if (media > distanza) {
+					if (result.containsKey("" + idArrivo + " " + idPartenza)) {
+						result.get("" + idArrivo + " " + idPartenza)
+								.setMedia(media + (result.get("" + idArrivo + " " + idPartenza).getMedia()) / 2);
 
-				if (result.containsKey("" + idArrivo + " " + idPartenza)) {
-					result.get("" + idArrivo + " " + idPartenza)
-							.setMedia(media + (result.get("" + idArrivo + " " + idPartenza).getMedia()) / 2);
-
-				} else 
-				result.put("" + idPartenza + " " + idArrivo, new Supporto(rs.getDouble("MEDIA"),
-						rs.getInt("origin_airport_id"), rs.getInt("destination_airport_id"), rs.getInt("id")));
+					} else
+						result.put("" + idPartenza + " " + idArrivo, new Supporto(rs.getDouble("MEDIA"),
+								rs.getInt("origin_airport_id"), rs.getInt("destination_airport_id"), rs.getInt("id")));
+				}
 			}
 
 			conn.close();

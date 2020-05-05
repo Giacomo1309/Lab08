@@ -6,8 +6,10 @@ public class TestModel {
 		
 		Model model = new Model();
 	//	System.out.println(model.getIdMap());
-	//	System.out.println(model.nArchi());
+		
+	//	model.creaGrafo();
 		System.out.println(model.nVertici());
+		System.out.println(model.nArchi());
 		
 
 	}
